@@ -1,0 +1,36 @@
+{
+  "DAYS": [
+    {
+      "n": 1, "color": "#6b7280", "cityBg": "#f8f9fa", "date": "7. 27", "dow": "월",
+      "theme": "출국 및 뉴욕 도착", "pacing": "빡빡", "flags": [],
+      "note": "환승을 거쳐 뉴욕에 심야 도착하는 긴 이동의 날입니다. 공항과 호텔 모두 구글 지도로 연결됩니다.",
+      "stops": [
+        { "time": "07:20", "kind": "move", "title": "부산공항 출발", "place": "<a href='https://maps.google.com' target='_blank' class='map-link'>부산공항</a>", "meta": "항공편 이륙." },
+        { "time": "08:25", "kind": "arrive", "title": "김포공항 도착", "place": "<a href='https://maps.google.com' target='_blank' class='map-link'>김포공항</a>", "meta": "짐 찾고 공항철도 탑승장으로 이동." },
+        { "time": "23:05", "kind": "arrive", "title": "뉴욕 JFK 공항 도착", "place": "<a href='https://maps.google.com' target='_blank' class='map-link'>JFK 공항</a>", "meta": "입국 심사 및 짐 찾기." },
+        { "time": "24:30", kind: "arrive", "title": "호텔 늦은 체크인", "place": "<a href='https://maps.google.com' target='_blank' class='map-link'>JFK 햄프턴 인</a>" }
+      ]
+    },
+    {
+      "n": 2, "color": "#1f6feb", "cityBg": "#f0f7ff", "date": "7. 28", "dow": "화",
+      "theme": "뉴욕 입성 · 마트 장보기", "pacing": "여유", "flags": [],
+      "note": "공항 근처에서 합리적인 대중교통(LIRR, PATH)으로 호보컨 숙소에 입성합니다.",
+      "stops": [
+        { "time": "11:45", "kind": "arrive", "title": "에어비앤비 도착 및 짐 보관", "place": "<a href='https://maps.google.com' target='_blank' class='map-link'>157 3rd St, Hoboken</a>" },
+        { "time": "13:30", "kind": "sight", "title": "트레이더 조 장보기", "place": "<a href='https://maps.google.com' target='_blank' class='map-link'>트레이더 조 (1350 Willow Ave)</a>" }
+      ]
+    }
+  ],
+  "BOOKING": [
+    { "soft": false, "title": "항공권 및 암트랙 발권", "detail": "국내선 및 기차 최우선 발권 필수." }
+  ],
+  "ALERTS": [
+    { "title": "나이아가라 국경 통과 주의", "body": "숙소가 캐나다 측이므로 여권 지참 필수입니다.", "alts": ["가족 전원 여권 확인"] }
+  ],
+  "TIPS": [
+    { "t": "합리적 여행", "b": "대중교통을 적극 활용하여 예산을 절감합니다." }
+  ],
+  "CAVEATS": [
+    "국내선 비행편은 지연이 잦으니 유의하세요."
+  ]
+}
