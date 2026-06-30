@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>미국 가족여행</title>
+<link rel="manifest" href="./manifest.json" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #eceff3; --surface: #ffffff; --surface-2: #f6f8fb;
+    --ink: #14161a; --ink-2: #3a3f47; --muted: #6b7280; --muted-2: #9aa1ab;
+    --line: #e4e7ec; --line-strong: #d4d9e0;
+    --day-color: #1f6feb; --day-tint: rgba(31, 111, 235, 0.10);
+    --warn: #d6442f; --warn-tint: #fdecea;
+    --radius-sm: 11px; --radius-pill: 999px;
+    --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+    --shadow-md: 0 6px 18px rgba(16, 24, 40, 0.08);
+    --sidebar-w: 250px; --header-h: 84px;
+  }
+  html, body { height: 100%; }
+  body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased; line-height: 1.5; }
+  a.map-link { color: inherit; text-decoration: none !important; font-weight: 700; cursor: pointer; }
+  a.map-link:hover { color: var(--day-color); }
+  .topbar { height: var(--header-h); background: var(--ink); color: #fff; display: flex; align-items: center; padding: 0 24px; position: sticky; top: 0; z-index: 30; }
+  .brand__title { font-size: 18px; font-weight: 800; }
+  .brand__sub { font-size: 12px; color: #aeb4be; margin-top: 2px; }
+  .shell { display: grid; grid-template-columns: var(--sidebar-w) 1fr; height: calc(100vh - var(--header-h)); }
+  .sidebar { background: var(--surface); border-right: 1px solid var(--line); overflow-y: auto; padding: 14px; }
+  .sidebar__label { font-size: 11px; font-weight: 700; color: var(--muted-2); letter-spacing: 0.12em; padding: 6px 8px; }
+  .navbtn { display: flex; flex-direction: column; width: 100%; text-align: left; border: 0; border-radius: 12px; padding: 10px 12px; cursor: pointer; margin-bottom: 4px; }
+  .navbtn.is-active { box-shadow: inset 4px 0 0 var(--day-color); filter: brightness(0.92); }
+  .navbtn__day { font-size: 13px; font-weight: 800; }
+  .navbtn__theme { font-size: 12px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nav-sep { height: 1px; background: var(--line); margin: 12px 6px; }
+  .infobtn { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; background: transparent; border: 0; border-radius: 12px; padding: 8px; cursor: pointer; font-size: 13px; font-weight: 600; }
+  .infobtn.is-active { background: #eef2f7; }
+  .stage { overflow-y: auto; }
+  .stage__inner { padding: 20px; max-width: 1200px; margin: 0 auto; }
+  .reveal { animation: fade-up .35s ease both; }
+  @keyframes fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .day__heading { margin-bottom: 12px; }
+  .eyebrow { font-size: 11px; font-weight: 600; color: var(--muted); }
+  .day__theme { font-size: 24px; font-weight: 800; }
+  .day__note { margin: 12px 0; font-size: 13.5px; background: var(--surface); border-left: 3px solid var(--day-color); padding: 10px; border-radius: 4px; }
+  .timeline { display: flex; flex-direction: column; gap: 8px; }
+  .stop { display: grid; grid-template-columns: 50px 20px 1fr; }
+  .stop__time { font-weight: 700; color: var(--day-color); font-size: 13px; padding-top: 12px; text-align: right; }
+  .stop__rail { position: relative; }
+  .stop__rail::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--day-color); opacity: 0.2; }
+  .node { position: absolute; left: 50%; top: 16px; transform: translateX(-50%); width: 10px; height: 13px; border-radius: 50%; background: var(--surface); border: 2px solid var(--day-color); }
+  .stop__card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 10px; display: flex; gap: 10px; }
+  .stop__card-left { flex: 0 0 auto; }
+  .stop__card-right { flex: 1; min-width: 0; }
+  .tag { font-size: 10px; font-weight: 700; border-radius: 4px; padding: 2px 4px; background: #eef2f8; }
+  .stop__title { font-size: 14.5px; font-weight: 700; }
+  .stop__place { font-size: 12px; color: var(--muted); }
+  .stop__meta { font-size: 12.5px; color: var(--ink-2); margin-top: 4px; }
+  .info-view { background: var(--surface); padding: 20px; border-radius: 12px; border: 1px solid var(--line); }
+  
+  /* 모바일 최적화 반응형 격자 붕괴 */
+  @media (max-width: 768px) {
+    .shell { grid-template-columns: 1fr; height: auto; }
+    .sidebar { display: flex; overflow-x: auto; white-space: nowrap; gap: 8px; padding: 10px; border-right: 0; border-bottom: 1px solid var(--line); }
+    .sidebar__label, .nav-sep { display: none; }
+    .navbtn, .infobtn { width: auto; inline-size: max-content; }
+  }
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand__title">온하인하현묘중민 미국 동부 가족여행</div>
+      <div class="brand__sub">2026.7.27.(월) - 8. 24.(월) · 29 DAYS</div>
+    </div>
+  </header>
+  
+  <div class="shell">
+    <nav class="sidebar" id="sidebar"></nav>
+    <main class="stage" id="stage">
+      <div class="stage__inner" id="stageInner">로딩 중...</div>
+    </main>
+  </div>
+  
+<script>
+let globalData = null;
+
+// 깃허브에 같이 올려둔 schedule.json 파일을 실시간으로 가져오는 마법
+async function loadData() {
+  try {
+    const res = await fetch('./schedule.json');
+    globalData = await res.json();
+    renderSidebar();
+    selectDay(0);
+  } catch (e) {
+    document.getElementById('stageInner').innerText = "데이터를 불러오지 못했습니다.";
+  }
+}
+
+function setAccent(color) {
+  document.documentElement.style.setProperty("--day-color", color);
+}
+
+function renderSidebar() {
+  const nav = document.getElementById("sidebar");
+  let html = `<div class="sidebar__label">여행 일정</div>`;
+  globalData.DAYS.forEach((d, i) => {
+    html += `
+      <button class="navbtn" id="nb-${i}" style="background-color: ${d.cityBg};" onclick="selectDay(${i})">
+        <span class="navbtn__day" style="color: ${d.color};">${d.date}.(${d.dow})</span>
+        <span class="navbtn__theme">${d.theme}</span>
+      </button>`;
+  });
+  html += `
+    <div class="nav-sep"></div>
+    <button class="infobtn" id="ib-alerts" onclick="selectInfo('alerts')">⚠️ 필수 확인</button>
+    <button class="infobtn" id="ib-booking" onclick="selectInfo('booking')">🎫 예약 체크</button>`;
+  nav.innerHTML = html;
+}
+
+function selectDay(idx) {
+  document.querySelectorAll('.navbtn, .infobtn').forEach(b => b.classList.remove('is-active'));
+  document.getElementById(`nb-${idx}`).classList.add('is-active');
+  
+  const d = globalData.DAYS[idx];
+  setAccent(d.color);
+  
+  let stopsHtml = d.stops.map(s => `
+    <div class="stop">
+      <div class="stop__time">${s.time}</div>
+      <div class="stop__rail"><span class="node"></span></div>
+      <div class="stop__card">
+        <div class="stop__card-left"><span class="tag">${s.kind}</span></div>
+        <div class="stop__card-right">
+          <div class="stop__title">${s.title}</div>
+          ${s.place ? `<div class="stop__place">📍 ${s.place}</div>` : ''}
+          ${s.meta ? `<div class="stop__meta">${s.meta}</div>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('stageInner').innerHTML = `
+    <div class="reveal">
+      <div class="day__heading">
+        <div class="eyebrow">DAY ${d.n}</div>
+        <div class="day__theme">${d.theme}</div>
+      </div>
+      ${d.note ? `<div class="day__note">${d.note}</div>` : ''}
+      <div class="timeline">${stopsHtml}</div>
+    </div>`;
+}
+
+function selectInfo(type) {
+  document.querySelectorAll('.navbtn, .infobtn').forEach(b => b.classList.remove('is-active'));
+  document.getElementById(`ib-${type}`).classList.add('is-active');
+  setAccent("#334155");
+  
+  let html = `<div class="info-view reveal">`;
+  if(type === 'alerts') {
+    html += `<h2>⚠️ 필수 확인 사항</h2><br/>` + globalData.ALERTS.map(a => `<h3>${a.title}</h3><p>${a.body}</p><br/>`).join('');
+  } else {
+    html += `<h2>🎫 예약 리스트</h2><br/>` + globalData.BOOKING.map(b => `<h3>${b.title}</h3><p>${b.detail}</p><br/>`).join('');
+  }
+  html += `</div>`;
+  document.getElementById('stageInner').innerHTML = html;
+}
+
+loadData();
+</script>
+</body>
+</html>
