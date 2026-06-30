@@ -24,20 +24,18 @@
   }
   html, body { height: 100%; background: #eceff3; font-family: var(--font-sans); color: var(--ink); -webkit-font-smoothing: antialiased; }
   
-  /* 모바일 화면처럼 가운데 정렬 (PC 대응) */
   .app-container {
     max-width: 480px; margin: 0 auto; min-height: 100%; background: var(--bg);
     display: flex; flex-direction: column; position: relative; box-shadow: 0 0 32px rgba(0,0,0,0.05);
   }
 
   a.map-link { color: inherit; text-decoration: none !important; font-weight: 700; cursor: pointer; }
+  a.map-link:hover { color: var(--day-color); }
 
-  /* 타이틀 바 */
   .topbar { height: var(--header-h); background: var(--ink); color: #fff; display: flex; align-items: center; padding: 0 20px; position: sticky; top: 0; z-index: 30; }
   .brand__title { font-size: 16px; font-weight: 800; }
   .brand__sub { font-size: 11px; color: #aeb4be; margin-top: 1px; }
 
-  /* 모바일 가로 스크롤 날짜 바 */
   .day-selector {
     display: flex; overflow-x: auto; white-space: nowrap; gap: 8px; padding: 12px;
     background: var(--surface); border-bottom: 1px solid var(--line);
@@ -57,7 +55,6 @@
   .navbtn__day { font-size: 13px; font-weight: 800; }
   .navbtn__theme { font-size: 10px; color: var(--muted); margin-top: 1px; }
 
-  /* 메인 스크롤 콘텐츠 */
   .stage { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 80px; }
   .reveal { animation: fade-up 0.3s ease both; }
   @keyframes fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -67,29 +64,31 @@
   .day__theme { font-size: 20px; font-weight: 800; margin-top: 2px; }
   .day__note { margin: 12px 0; font-size: 13px; background: var(--surface); border-left: 4px solid var(--day-color); padding: 10px; border-radius: 6px; color: var(--ink-2); line-height: 1.5; box-shadow: var(--shadow-sm); }
 
-  /* 타임라인 축소 및 모바일 최적화 */
   .timeline { display: flex; flex-direction: column; gap: 10px; }
   .stop { display: grid; grid-template-columns: 46px 16px 1fr; }
   .stop__time { font-weight: 700; color: var(--day-color); font-size: 13px; padding-top: 10px; text-align: right; }
   .stop__rail { position: relative; }
   .stop__rail::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--day-color); opacity: 0.15; }
-  .node { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); width: 8px; height: 8px; border-radius: 50%; background: var(--surface); border: 2px solid var(--day-color); }
+  .node { position: absolute; left: 50%; top: 14px; transform: translateX-%50; width: 8px; height: 8px; border-radius: 50%; background: var(--surface); border: 2px solid var(--day-color); }
+  .stop--alert .node { border-color: var(--warn); }
+  .stop--book .node { background: var(--day-color); }
   
   .stop__card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 10px; display: flex; gap: 8px; box-shadow: var(--shadow-sm); }
   .stop__card-left { flex: 0 0 auto; }
   .stop__card-right { flex: 1; min-width: 0; }
   .tag { font-size: 9px; font-weight: 700; border-radius: 4px; padding: 1px 4px; background: #eef2f8; color: #4b5563; }
+  .tag--need { background: var(--day-color); color: #fff; }
   .stop__title { font-size: 14px; font-weight: 700; color: var(--ink); }
   .stop__place { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
   .stop__meta { font-size: 12.5px; color: var(--ink-2); margin-top: 4px; line-height: 1.4; }
 
-  /* 공통 정보 뷰 카드 */
   .info-view { display: flex; flex-direction: column; gap: 12px; }
   .info-card { background: var(--surface); padding: 14px; border-radius: 12px; border: 1px solid var(--line); box-shadow: var(--shadow-sm); }
   .info-card h3 { font-size: 14.5px; font-weight: 700; margin-bottom: 4px; }
   .info-card p { font-size: 13px; color: var(--ink-2); line-height: 1.4; }
+  .alt-list { margin-top: 6px; display: flex; flex-direction: column; gap: 4px; }
+  .alt-item { font-size: 12px; background: var(--surface-2); padding: 6px; border-radius: 6px; color: var(--ink-2); }
 
-  /* 모바일 하단 고정 탭 바 */
   .bottom-nav {
     position: absolute; bottom: 0; left: 0; right: 0; height: var(--nav-h);
     background: var(--surface); border-top: 1px solid var(--line);
@@ -114,15 +113,12 @@
       </div>
     </header>
     
-    <!-- 상단 가로 스크롤 메뉴 -->
     <div class="day-selector" id="daySelector"></div>
     
-    <!-- 메인 화면 -->
     <main class="stage" id="stage">
       <div class="stage__inner" id="stageInner">로딩 중...</div>
     </main>
 
-    <!-- 하단 고정 탭 메뉴 -->
     <nav class="bottom-nav">
       <button class="tabbtn is-active" id="tab-schedule" onclick="switchTab('schedule')">
         <span class="tabbtn-icon">📅</span>일정표
@@ -137,20 +133,306 @@
   </div>
   
 <script>
-let globalData = null;
+// 외부 파일 에러를 피하기 위해 파일 내부로 데이터를 안전하게 병합
+const globalData = {
+  "DAYS": [
+    {
+      "n": 1, "color": "#6b7280", "cityBg": "#f8f9fa", "date": "7. 27", "dow": "월",
+      "theme": "출국 및 뉴욕 도착", "pacing": "빡빡", "flags": [],
+      "note": "환승을 거쳐 뉴욕에 심야 도착하는 긴 이동의 날입니다. 공항과 호텔 모두 구글 지도로 연결됩니다.",
+      "stops": [
+        { "time": "07:20", "kind": "이동", "title": "부산공항 출발", "place": "<a href='https://maps.google.com' target='_blank' class='map-link'>부산공항</a>", "meta": "항공편 이륙." },
+        { "time": "08:25", "kind": "도착", "title": "김포공항 도착", "place": "<a href='https://maps.google.com' target='_blank' class='map-link'>김포공항</a>", "meta": "짐 찾고 공항철도 탑승장으로 이동." },
+        { "time": "09:30", "kind": "이동", "title": "인천공항으로 이동", "meta": "공항철도를 이용해 쾌적하게 인천으로 이동." },
+        { "time": "11:00", "kind": "도착", "title": "인천공항 수속", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>인천공항</a>", "meta": "수하물 위탁 및 출국 심사." },
+        { "time": "13:00", "kind": "이동", "title": "인천공항 출발", "meta": "베이징행 항공편 이륙." },
+        { "time": "14:15", "kind": "도착", "title": "베이징 공항 도착", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>베이징 공항</a>", "meta": "환승 수속 진행." },
+        { "time": "15:00", "kind": "휴식", "title": "환승 라운지 휴식", "meta": "에어차이나 환승 라운지에서 대기 및 아이들 휴식." },
+        { "time": "19:35", "kind": "이동", "title": "베이징 공항 출발", "meta": "뉴욕 JFK행 장거리 비행 시작." },
+        { "time": "23:05", "kind": "도착", "title": "뉴욕 JFK 공항 도착", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>JFK 공항</a>", "meta": "입국 심사 및 짐 찾기." },
+        { "time": "24:30", "kind": "도착", "title": "호텔 늦은 체크인", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>JFK 햄프턴 인</a>", meta: "공항 인근 호텔에서 빠르게 취침." }
+      ]
+    },
+    {
+      "n": 2, "color": "#1f6feb", "cityBg": "#f0f7ff", "date": "7. 28", "dow": "화",
+      "theme": "뉴욕 입성 · 마트 장보기", "pacing": "여유", "flags": [],
+      "note": "공항 근처에서 합리적인 대중교통(LIRR, PATH)으로 호보컨 숙소에 입성합니다.",
+      "stops": [
+        { "time": "10:00", "kind": "이동", "title": "호텔 체크아웃", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>JFK 햄프턴 인</a>" },
+        { "time": "10:35", "kind": "이동", "title": "LIRR 환승", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>자메이카 역</a>" },
+        { "time": "11:00", "kind: "이동", "title": "펜 스테이션 도착 및 환승", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>맨해튼 펜 스테이션</a>" },
+        { "time": "11:45", "kind": "도착", "title": "에어비앤비 도착 및 짐 보관", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>157 3rd St, Hoboken</a>" },
+        { "time": "12:15", "kind": "식사", "title": "점심 식사", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Washington St 인근</a>" },
+        { "time": "13:30", "kind": "명소", "title": "트레이더 조 장보기", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>트레이더 조 (1350 Willow Ave)</a>" },
+        { "time": "15:00", "kind": "도착", "title": "숙소 체크인 및 휴식" },
+        { "time": "16:30", "kind: "명소", "title": "워터프론트 산책", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Pier A Park</a>" },
+        { "time": "18:00", "kind": "식사", "title": "숙소 저녁 식사" }
+      ]
+    },
+    {
+      "n": 3, "color": "#1f6feb", "cityBg": "#f0f7ff", "date": "7. 29", "dow": "수",
+      "theme": "자연사 박물관 · 타임스퀘어 야경", "pacing": "보통", "flags": [],
+      "note": "타임스퀘어 조명을 볼 수 있는 가장 빠른 시간에 보고 숙소로 복귀합니다.",
+      "stops": [
+        { "time": "09:30", "kind": "이동", "title": "숙소 출발" },
+        { "time": "10:20", "kind: "명소", "title": "센트럴파크 자전거 대여", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>콜럼버스 서클</a>" },
+        { "time": "12:35", "kind": "식사", "title": "점심 식사", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>자연사 박물관 앞 Shake Shack</a>" },
+        { "time": "13:30", "kind": "예약", "title": "미국 자연사 박물관", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>자연사 박물관</a>" },
+        { "time": "17:15", "kind": "식사", "title": "미드타운 저녁 식사", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Carmine's (타임스퀘어)</a>" },
+        { "time": "19:30", "kind: "명소", "title": "타임스퀘어 조명 (야경)", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>타임스퀘어</a>" },
+        { "time": "20:15", "kind": "이동", "title": "숙소 복귀" }
+      ]
+    },
+    {
+      "n": 4, "color": "#1f6feb", "cityBg": "#f0f7ff", "date": "7. 30", "dow": "목",
+      "theme": "자유의 여신상 · 피터 루거 · 덤보", "pacing": "빡빡", "flags": [],
+      "note": "저녁 피터 루거 예약과 브루클린 브릿지 해질녘 타이밍 동선입니다.",
+      "stops: [
+        { "time": "08:30", "kind": "이동", "title": "숙소 출발" },
+        { "time": "09:15", "kind: "예약", "title": "자유의 여신상 페리 탑승", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>리버티 스테이트 파크 (NJ)</a>" },
+        { "time": "12:15", "kind: "명소", "title": "월가 황소상", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Charging Bull</a>" },
+        { "time": "14:20", "kind: "명소", "title": "덤보 (DUMBO)", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Washington St, DUMBO</a>" },
+        { "time": "16:00", "kind: "예약", "title": "피터 루거 스테이크하우스", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>178 Broadway, Brooklyn</a>" },
+        { "time": "18:30", "kind: "명소", "title": "브루클린 브리지 건너기", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>브루클린 브리지</a>" },
+        { "time": "19:40", "kind": "이동", "title": "숙소 복귀" }
+      ]
+    },
+    {
+      "n": 5, "color": "#1f6feb", "cityBg": "#f0f7ff", "date": "7. 31", "dow: "금",
+      "theme": "베슬 · 하이라인 · 블루이 캠프", "pacing": "보통", "flags": [],
+      "note": "웨스트사이드를 따라 쭉 내려오는 알찬 실내외 체험 동선입니다.",
+      "stops": [
+        { "time": "09:30", "kind": "이동", "title": "숙소 출발" },
+        { "time": "10:10", "kind: "예약", "title": "베슬 (Vessel)", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>베슬</a>" },
+        { "time": "11:00", "kind: "명소", "title": "하이라인 산책", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>하이라인 파크</a>" },
+        { "time": "12:00", "kind: "식사", "title": "점심 식사 (첼시 마켓)", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>첼시 마켓</a>" },
+        { "time": "13:30", "kind: "명소", "title": "수학박물관 (MoMath)", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>수학박물관</a>" },
+        { "time": "15:15", "kind: "예약", "title": "블루이 캠프", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>블루이 캠프</a>" },
+        { "time": "16:30", "kind: "이동", "title": "숙소 복귀" }
+      ]
+    },
+    {
+      "n": 6, "color": "#1f6feb", cityBg: "#f0f7ff", date: "8. 1", dow: "토",
+      "theme": "숙소 휴식 · 진혁 가족 만남", pacing: "여유", flags: [],
+      "stops": [
+        { time: "오전", kind: "휴식", title: "기상 및 숙소 여유로운 휴식" },
+        { time: "16:00", kind: "식사", title: "진혁 가족 만나서 저녁 식사", meta: "즐거운 친지 담소 시간." }
+      ]
+    },
+    {
+      "n": 7, color: "#1f6feb", cityBg: "#f0f7ff", date: "8. 2", dow: "일",
+      "theme": "전일 휴식 및 홀푸즈 장보기", pacing: "여유", flags: [],
+      "stops": [
+        { time: "종일", kind: "휴식", title: "체력 회복 전일 완전 휴식" },
+        { time: "14:00", kind: "명소", title: "홀푸즈 장보기", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>홀푸즈 마켓 (1400 Washington St)</a>" },
+        { time: "18:00", kind: "식사", title: "숙소 직접 요리 저녁 식사" }
+      ]
+    },
+    {
+      "n": 8, color: "#1f6feb", cityBg: "#f0f7ff", date: "8. 3", dow: "월",
+      "theme": "위호큰 풀 수영 · 야경 산책", pacing: "여유", flags: [],
+      "stops": [
+        { time: "10:00", kind: "예약", title: "위호큰 풀 수영장 입수", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Weehawken Pool</a>" },
+        { time: "13:00", kind: "식사", title: "숙소 복귀 후 점심 및 낮잠 휴식" },
+        { time: "17:00", kind: "명소", title: "호보큰 동네 여유로운 산책" },
+        { time: "19:45", kind: "명소", title: "워터프론트 맨해튼 야경 감상", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>시나트라 파크</a>" }
+      ]
+    },
+    {
+      "n": 9, color: "#1f6feb", cityBg: "#f0f7ff", date: "8. 4", dow: "화",
+      "theme": "센트럴파크 피크닉 · 메트로폴리탄", pacing: "보통", flags: [],
+      "stops": [
+        { time: "08:30", kind: "이동", title: "도시락 지참 숙소 출발" },
+        { time: "09:30", kind: "식사", title: "센트럴파크 아침 도시락 피크닉", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Great Lawn</a>" },
+        { time: "10:00", kind: "명소", title: "메트로폴리탄 미술관 오픈런", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>메트로폴리탄 미술관</a>" },
+        { time: "12:15", kind: "예약", title: "한국어 도슨트 투어 참여" },
+        { time: "15:00", kind: "명소", title: "루즈벨트 아일랜드 트램웨이 탑승", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>루즈벨트 트램</a>" }
+      ]
+    },
+    {
+      "n": 10, color: "#1f6feb", cityBg: "#f0f7ff", date: "8. 5", dow: "수",
+      "theme": "모마 · 알라딘 · 타임스퀘어 야경", pacing: "보통", flags: [],
+      "stops": [
+        { time: "10:30", kind: "예약", title: "모마 미술관 관람", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>MoMA</a>" },
+        { time: "12:30", kind: "식사", title: "점심 식사", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Halal Guys (53rd St)</a>" },
+        { time: "14:00", kind: "예약", title: "알라딘 뮤지컬 관람 (마티네)", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>New Amsterdam Theatre</a>" },
+        { time: "19:30", kind: "명소", title: "타임스퀘어 화려한 조명 야경", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>타임스퀘어</a>" }
+      ]
+    },
+    {
+      "n": 11, color: "#1f6feb", cityBg: "#f0f7ff", date: "8. 6", dow: "목",
+      "theme: "브라이언트 파크 · 써밋 · 2층 버스", pacing: "빡빡", flags: [],
+      "stops": [
+        { time: "10:15", kind: "명소", title: "브라이언트 파크 산책", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>브라이언트 파크</a>" },
+        { time: "11:00", kind: "명소", title: "뉴욕 공립도서관 구경", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>뉴욕 공립도서관</a>" },
+        { time: "13:30", kind: "예약", title: "써밋 원 밴더빌트 전망대", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>써밋 원 밴더빌트</a>" },
+        { time: "15:30", kind: "예약", title: "2층 시티투어 버스 탑승 관광" }
+      ]
+    },
+    // ================= WASHINGTON D.C. =================
+    {
+      "n": 12, "color": "#e5484d", "cityBg": "#fff0f5", "date": "8. 7", "dow": "금",
+      "theme": "워싱턴 이동 및 와프 체크인", "pacing": "보통", "flags": [],
+      "stops": [
+        { "time": "11:16", "kind": "이동", "title": "Amtrak 기차 탑승", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>모이니한 트레인 홀</a>" },
+        { "time": "14:46", "kind": "도착", "title": "워싱턴 Union Station 도착" },
+        { "time": "15:30", "kind": "도착", "title": "호텔 체크인 및 휴식", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>InterContinental The Wharf</a>" }
+      ]
+    },
+    {
+      "n": 13, "color": "#e5484d", "cityBg": "#fff0f5", "date": "8. 8", "dow": "토",
+      "theme": "내셔널 몰 · 백악관 외부", "pacing": "보통", "flags": [],
+      "stops": [
+        { "time": "08:45", "kind": "예약", "title": "모뉴먼트 당일 티켓 수령", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Monument Lodge</a>" },
+        { "time": "09:30", "kind: "명소", "title": "백악관 외부 사진 촬영", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Lafayette Square</a>" },
+        { "time": "11:15", "kind: "명소", "title": "스미소니언 자연사 박물관", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>스미소니언 자연사 박물관</a>" }
+      ]
+    },
+    {
+      "n": 14, "color": "#e5484d", "cityBg": "#fff0f5", "date": "8. 9", "dow": "일",
+      "theme": "우주항공 박물관 · 국회의사당", "pacing": "보통", "flags": [],
+      "stops": [
+        { "time": "09:40", "kind": "예약", "title": "국회의사당 내부 투어", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>미국 국회의사당</a>" },
+        { "time": "11:30", "kind: "예약", "title": "우주항공 박물관 & IMAX", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>우주항공 박물관</a>" }
+      ]
+    },
+    {
+      "n": 15, "color": "#e5484d", "cityBg": "#fff0f5", "date": "8. 10", "dow": "월",
+      "theme": "링컨 기념관 · 대한제국 공사관", "pacing": "여유", "flags": [],
+      "stops": [
+        { "time": "10:00", "kind": "명소", "title": "링컨 기념관 관람", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>링컨 기념관</a>" },
+        { "time": "11:30", "kind: "예약", "title": "주미 대한제국 공사관 방문", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>대한제국 공사관</a>" }
+      ]
+    },
+    // ================= BOSTON =================
+    {
+      "n": 16, "color": "#047857", "cityBg": "#f0fdf4", "date": "8. 11", "dow": "화",
+      "theme": "보스턴 도착 · 어린이 박물관", "pacing": "보통", "flags": [],
+      "stops": [
+        { "time": "09:53", "kind": "도착", "title": "보스턴 공항 도착 후 숙소 이동", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>The Revolution Hotel</a>" },
+        { "time": "13:00", "kind: "예약", "title": "보스턴 어린이 박물관", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>보스턴 어린이 박물관</a>" }
+      ]
+    },
+    {
+      "n": 17, "color": "#047857", "cityBg": "#f0fdf4", "date": "8. 12", "dow": "수",
+      "theme": "과학 박물관 · 하버드 & MIT", "pacing": "빡빡", "flags": [],
+      "stops": [
+        { "time": "10:00", "kind: "명소", "title": "보스턴 과학 박물관", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>보스턴 과학 박물관</a>" },
+        { "time": "14:00", "kind: "명소", "title": "하버드 & MIT 투어", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>하버드 & MIT</a>" },
+        { "time": "17:00", "kind: "명소", "title": "펜웨이 파크 구경", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Fenway Park</a>" },
+        { "time": "18:30", "kind: "식사", "title": "저녁 식사 (퀸시 마켓)", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Quincy Market</a>" }
+      ]
+    },
+    // ================= NIAGARA =================
+    {
+      "n": 18, "color": "#0284c7", "cityBg": "#f0fdfa", "date": "8. 13", "dow": "목",
+      "theme": "나이아가라(캐나다) 이동 · 크루즈", "pacing": "보통", "flags": [],
+      "stops": [
+        { "time": "09:55", "kind: "도착", "title": "버팔로 공항 도착 후 캐나다 입국" },
+        { "time": "11:45", "kind: "도착", "title": "숙소 짐 보관", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Wyndham Garden Fallsview</a>" },
+        { "time": "14:30", "kind: "예약", "title": "나이아가라 시티 크루즈", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Hornblower 선착장</a>" }
+      ]
+    },
+    {
+      "n": 19, "color": "#0284c7", "cityBg": "#f0fdfa", "date": "8. 14", "dow": "금",
+      "theme": "폭포 뒤 투어 · 시카고 이동", "pacing": "빡빡", "flags": [],
+      "stops": [
+        { "time": "09:45", "kind: "예약", "title": "Journey Behind the Falls", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>폭포 지하 터널</a>" },
+        { "time": "19:27", "kind: "도착", "title": "시카고 공항 도착 후 에반스턴 이동" },
+        { "time": "20:30", "kind: "도착", "title": "시카고 숙소 체크인", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Holiday Inn Evanston</a>" }
+      ]
+    },
+    // ================= CHICAGO =================
+    {
+      "n": 20, "color": "#d97706", "cityBg": "#fff7ed", "date": "8. 15", "dow": "토",
+      "theme": "호수 산책 · 아버지 칠순 잔치", "pacing": "여유", "flags": [],
+      "stops": [
+        { "time": "10:30", "kind: "명소", "title": "미시간 호수 산책", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Evanston Lakefront</a>" },
+        { "time": "18:00", "kind: "식사", "title": "아버지 칠순 생일 파티", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>부모님 숙소 (1890 Maple Ave)</a>" }
+      ]
+    },
+    {
+      "n": 21, "color": "#d97706", "cityBg": "#fff7ed", "date": "8. 16", "dow": "일",
+      "theme": "글렌뷰 농장 방문 (렌트카)", "pacing": "보통", "flags": [],
+      "stops": [
+        { "time": "10:00", "kind: "명소", "title": "글렌뷰 Wagner Farm 체험", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Wagner Farm</a>" },
+        { "time": "17:30", "kind: "식사", "title": "저녁 식사 (부모님 숙소)" }
+      ]
+    },
+    {
+      "n": 22, "color": "#d97706", "cityBg": "#fff7ed", "date": "8. 17", "dow": "월",
+      "theme": "가족 친목 · 동생집 방문", "pacing": "여유", "flags": [],
+      "stops": [
+        { "time": "15:00", "kind: "명소", "title": "동생 집 방문 및 조카와 시간", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>807 Church St, Evanston</a>" },
+        { "time": "18:00", "kind: "식사", "title": "저녁 식사 (부모님 숙소)" }
+      ]
+    },
+    {
+      "n": 23, "color": "#d97706", "cityBg": "#fff7ed", "date": "8. 18", "dow: "화",
+      "theme": "노스웨스턴 대학교 캠퍼스 산책", "pacing": "보통", "flags": [],
+      "stops": [
+        { "time": "10:30", "kind: "명소", "title": "노스웨스턴 대학교 산책", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Northwestern University</a>" },
+        { "time": "17:30", "kind: "식사", "title": "저녁 식사 (부모님 숙소)" }
+      ]
+    },
+    {
+      "n": 24, "color": "#d97706", "cityBg": "#fff7ed", "date": "8. 19", "dow": "수",
+      "theme": "에반스턴 로컬 여유로운 하루", "pacing": "여유", "stops": [
+        { "time": "오후", "kind": "휴식", "title": "조카 및 부모님과 자율 시간" },
+        { "time": "18:00", "kind: "식사", "title": "저녁 식사 (부모님 숙소)" }
+      ]
+    },
+    {
+      "n": 25, "color": "#d97706", "cityBg": "#fff7ed", "date": "8. 20", "dow": "목",
+      "theme": "필드 자연사 박물관 · 데일리 파크", "pacing": "보통", "stops": [
+        { "time": "10:30", "kind: "예약", "title": "필드 자연사 박물관 관람", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Field Museum</a>" },
+        { "time": "15:00", "kind: "명소", "title": "매기 데일리 파크 놀이터", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Maggie Daley Park</a>" }
+      ]
+    },
+    {
+      "n": 26, "color": "#d97706", "cityBg": "#fff7ed", "date": "8. 21", "dow": "금",
+      "theme: "시카고 어린이 박물관 · 리버 크루즈", "pacing": "빡빡", "stops": [
+        { "time": "10:00", "kind: "명소", "title": "시카고 어린이 박물관", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Chicago Children's Museum</a>" },
+        { "time": "14:30", "kind: "예약", "title": "시카고 건축물 리버 크루즈", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Chicago Riverwalk</a>" }
+      ]
+    },
+    {
+      "n": 27, "color": "#d97706", "cityBg": "#fff7ed", "date": "8. 22", "dow": "토",
+      "theme": "밀레니엄 파크 · 딥디쉬 피자", "pacing": "보통", "stops": [
+        { "time": "10:30", "kind: "명소", "title": "밀레니엄 파크 '더 빈' 사진", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Cloud Gate</a>" },
+        { "time": "11:30", "kind: "명소", "title": "크라운 분수 물놀이", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>Crown Fountain</a>" },
+        { "time": "13:00", "kind: "식사", "title": "점심 딥디쉬 피자 회식" }
+      ]
+    },
+    {
+      "n": 28, "color": "#6b7280", "cityBg": "#f8f9fa", "date": "8. 23", "dow": "일",
+      "theme": "시카고 오헤어 공항 출국", "pacing": "여유", "stops": [
+        { "time": "12:30", "kind: "이동", "title": "인천행 항공편 이륙", place: "<a href='https://maps.google.com' target='_blank' class='map-link'>O'Hare 공항</a>" }
+      ]
+    },
+    {
+      "n": 29, "color": "#6b7280", "cityBg": "#f8f9fa", "date": "8. 24", "dow": "월",
+      "theme": "한국 안전 도착 및 내항기 환승", "pacing": "여유", "stops": [
+        { "time": "16:50", "kind: "도착", "title": "인천공항 입국 수속" },
+        { "time": "19:25", "kind: "도착", "title": "부산 김해공항 최종 복귀 완료" }
+      ]
+    }
+  ],
+  "BOOKING": [
+    { "title": "교통편 사전 발권 필수", "detail": "국내선 비행기표 및 암트랙 기차표 사전 예매." },
+    { "title": "우주항공 박물관 패스", "detail": "무료입장이지만 Timed Entry Pass 사전 필수 예약." }
+  ],
+  "ALERTS": [
+    { "title": "나이아가라 여권 필수", "body": "숙소가 캐나다 측(Wyndham Garden)이므로 반드시 여권을 상시 지참하고 이동하셔야 합니다." }
+  ]
+};
+
 let currentTab = 'schedule';
 let currentDayIdx = 0;
 
-async function loadData() {
-  try {
-    // 상대 경로 호환성 개선
-    const res = await fetch('schedule.json');
-    globalData = await res.json();
-    renderDaySelector();
-    showSchedule();
-  } catch (e) {
-    document.getElementById('stageInner').innerText = "데이터(schedule.json)를 불러오지 못했습니다. 파일이 저장소에 있는지 확인해 주세요.";
-  }
+function initApp() {
+  renderDaySelector();
+  showSchedule();
 }
 
 function renderDaySelector() {
@@ -192,7 +474,6 @@ function showSchedule() {
   const activeBtn = document.getElementById(`nb-${currentDayIdx}`);
   if(activeBtn) {
     activeBtn.classList.add('is-active');
-    // 스크롤 자동 이동 기능 추가
     activeBtn.parentNode.scrollTo({ left: activeBtn.offsetLeft - 20, behavior: 'smooth' });
   }
   
@@ -200,11 +481,11 @@ function showSchedule() {
   document.documentElement.style.setProperty("--day-color", d.color);
   
   let stopsHtml = d.stops.map(s => `
-    <div class="stop">
+    <div class="stop ${s.kind === '예약' ? 'stop--book' : ''}">
       <div class="stop__time">${s.time}</div>
       <div class="stop__rail"><span class="node"></span></div>
       <div class="stop__card">
-        <div class="stop__card-left"><span class="tag">${s.kind}</span></div>
+        <div class="stop__card-left"><span class="tag ${s.kind === '예약' ? 'tag--need' : ''}">${s.kind}</span></div>
         <div class="stop__card-right">
           <div class="stop__title">${s.title}</div>
           ${s.place ? `<div class="stop__place">📍 ${s.place}</div>` : ''}
@@ -249,7 +530,7 @@ function showBooking() {
   document.getElementById('stageInner').innerHTML = html;
 }
 
-loadData();
+initApp();
 </script>
 </body>
 </html>
