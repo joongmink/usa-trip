@@ -2,9 +2,9 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>미국 가족여행</title>
-<link rel="manifest" href="./manifest.json" />
+<link rel="manifest" href="manifest.json" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
@@ -19,114 +19,185 @@
     --radius-sm: 11px; --radius-pill: 999px;
     --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
     --shadow-md: 0 6px 18px rgba(16, 24, 40, 0.08);
-    --sidebar-w: 250px; --header-h: 84px;
+    --header-h: 64px; --nav-h: 60px;
+    --font-sans: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   }
-  html, body { height: 100%; }
-  body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased; line-height: 1.5; }
+  html, body { height: 100%; background: #eceff3; font-family: var(--font-sans); color: var(--ink); -webkit-font-smoothing: antialiased; }
+  
+  /* 모바일 화면처럼 가운데 정렬 (PC 대응) */
+  .app-container {
+    max-width: 480px; margin: 0 auto; min-height: 100%; background: var(--bg);
+    display: flex; flex-direction: column; position: relative; box-shadow: 0 0 32px rgba(0,0,0,0.05);
+  }
+
   a.map-link { color: inherit; text-decoration: none !important; font-weight: 700; cursor: pointer; }
-  a.map-link:hover { color: var(--day-color); }
-  .topbar { height: var(--header-h); background: var(--ink); color: #fff; display: flex; align-items: center; padding: 0 24px; position: sticky; top: 0; z-index: 30; }
-  .brand__title { font-size: 18px; font-weight: 800; }
-  .brand__sub { font-size: 12px; color: #aeb4be; margin-top: 2px; }
-  .shell { display: grid; grid-template-columns: var(--sidebar-w) 1fr; height: calc(100vh - var(--header-h)); }
-  .sidebar { background: var(--surface); border-right: 1px solid var(--line); overflow-y: auto; padding: 14px; }
-  .sidebar__label { font-size: 11px; font-weight: 700; color: var(--muted-2); letter-spacing: 0.12em; padding: 6px 8px; }
-  .navbtn { display: flex; flex-direction: column; width: 100%; text-align: left; border: 0; border-radius: 12px; padding: 10px 12px; cursor: pointer; margin-bottom: 4px; }
-  .navbtn.is-active { box-shadow: inset 4px 0 0 var(--day-color); filter: brightness(0.92); }
+
+  /* 타이틀 바 */
+  .topbar { height: var(--header-h); background: var(--ink); color: #fff; display: flex; align-items: center; padding: 0 20px; position: sticky; top: 0; z-index: 30; }
+  .brand__title { font-size: 16px; font-weight: 800; }
+  .brand__sub { font-size: 11px; color: #aeb4be; margin-top: 1px; }
+
+  /* 모바일 가로 스크롤 날짜 바 */
+  .day-selector {
+    display: flex; overflow-x: auto; white-space: nowrap; gap: 8px; padding: 12px;
+    background: var(--surface); border-bottom: 1px solid var(--line);
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .day-selector::-webkit-scrollbar { display: none; }
+  
+  .navbtn {
+    display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+    border: 1px solid var(--line); border-radius: 12px; padding: 8px 14px; cursor: pointer;
+    min-width: 75px; flex: 0 0 auto; background: var(--surface); transition: all 0.15s ease;
+  }
+  .navbtn.is-active {
+    border-color: var(--day-color); background-color: var(--day-tint) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
   .navbtn__day { font-size: 13px; font-weight: 800; }
-  .navbtn__theme { font-size: 12px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .nav-sep { height: 1px; background: var(--line); margin: 12px 6px; }
-  .infobtn { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; background: transparent; border: 0; border-radius: 12px; padding: 8px; cursor: pointer; font-size: 13px; font-weight: 600; }
-  .infobtn.is-active { background: #eef2f7; }
-  .stage { overflow-y: auto; }
-  .stage__inner { padding: 20px; max-width: 1200px; margin: 0 auto; }
-  .reveal { animation: fade-up .35s ease both; }
-  @keyframes fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .navbtn__theme { font-size: 10px; color: var(--muted); margin-top: 1px; }
+
+  /* 메인 스크롤 콘텐츠 */
+  .stage { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 80px; }
+  .reveal { animation: fade-up 0.3s ease both; }
+  @keyframes fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
   .day__heading { margin-bottom: 12px; }
-  .eyebrow { font-size: 11px; font-weight: 600; color: var(--muted); }
-  .day__theme { font-size: 24px; font-weight: 800; }
-  .day__note { margin: 12px 0; font-size: 13.5px; background: var(--surface); border-left: 3px solid var(--day-color); padding: 10px; border-radius: 4px; }
-  .timeline { display: flex; flex-direction: column; gap: 8px; }
-  .stop { display: grid; grid-template-columns: 50px 20px 1fr; }
-  .stop__time { font-weight: 700; color: var(--day-color); font-size: 13px; padding-top: 12px; text-align: right; }
+  .eyebrow { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; }
+  .day__theme { font-size: 20px; font-weight: 800; margin-top: 2px; }
+  .day__note { margin: 12px 0; font-size: 13px; background: var(--surface); border-left: 4px solid var(--day-color); padding: 10px; border-radius: 6px; color: var(--ink-2); line-height: 1.5; box-shadow: var(--shadow-sm); }
+
+  /* 타임라인 축소 및 모바일 최적화 */
+  .timeline { display: flex; flex-direction: column; gap: 10px; }
+  .stop { display: grid; grid-template-columns: 46px 16px 1fr; }
+  .stop__time { font-weight: 700; color: var(--day-color); font-size: 13px; padding-top: 10px; text-align: right; }
   .stop__rail { position: relative; }
-  .stop__rail::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--day-color); opacity: 0.2; }
-  .node { position: absolute; left: 50%; top: 16px; transform: translateX(-50%); width: 10px; height: 13px; border-radius: 50%; background: var(--surface); border: 2px solid var(--day-color); }
-  .stop__card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 10px; display: flex; gap: 10px; }
+  .stop__rail::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--day-color); opacity: 0.15; }
+  .node { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); width: 8px; height: 8px; border-radius: 50%; background: var(--surface); border: 2px solid var(--day-color); }
+  
+  .stop__card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 10px; display: flex; gap: 8px; box-shadow: var(--shadow-sm); }
   .stop__card-left { flex: 0 0 auto; }
   .stop__card-right { flex: 1; min-width: 0; }
-  .tag { font-size: 10px; font-weight: 700; border-radius: 4px; padding: 2px 4px; background: #eef2f8; }
-  .stop__title { font-size: 14.5px; font-weight: 700; }
-  .stop__place { font-size: 12px; color: var(--muted); }
-  .stop__meta { font-size: 12.5px; color: var(--ink-2); margin-top: 4px; }
-  .info-view { background: var(--surface); padding: 20px; border-radius: 12px; border: 1px solid var(--line); }
-  
-  /* 모바일 최적화 반응형 격자 붕괴 */
-  @media (max-width: 768px) {
-    .shell { grid-template-columns: 1fr; height: auto; }
-    .sidebar { display: flex; overflow-x: auto; white-space: nowrap; gap: 8px; padding: 10px; border-right: 0; border-bottom: 1px solid var(--line); }
-    .sidebar__label, .nav-sep { display: none; }
-    .navbtn, .infobtn { width: auto; inline-size: max-content; }
+  .tag { font-size: 9px; font-weight: 700; border-radius: 4px; padding: 1px 4px; background: #eef2f8; color: #4b5563; }
+  .stop__title { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .stop__place { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .stop__meta { font-size: 12.5px; color: var(--ink-2); margin-top: 4px; line-height: 1.4; }
+
+  /* 공통 정보 뷰 카드 */
+  .info-view { display: flex; flex-direction: column; gap: 12px; }
+  .info-card { background: var(--surface); padding: 14px; border-radius: 12px; border: 1px solid var(--line); box-shadow: var(--shadow-sm); }
+  .info-card h3 { font-size: 14.5px; font-weight: 700; margin-bottom: 4px; }
+  .info-card p { font-size: 13px; color: var(--ink-2); line-height: 1.4; }
+
+  /* 모바일 하단 고정 탭 바 */
+  .bottom-nav {
+    position: absolute; bottom: 0; left: 0; right: 0; height: var(--nav-h);
+    background: var(--surface); border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: 1fr 1fr 1fr; z-index: 40;
   }
+  .tabbtn {
+    border: 0; background: transparent; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; font-size: 11px; font-weight: 600;
+    color: var(--muted); cursor: pointer;
+  }
+  .tabbtn.is-active { color: var(--ink); font-weight: 800; }
+  .tabbtn-icon { font-size: 18px; margin-bottom: 2px; }
 </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <div class="brand__title">온하인하현묘중민 미국 동부 가족여행</div>
-      <div class="brand__sub">2026.7.27.(월) - 8. 24.(월) · 29 DAYS</div>
-    </div>
-  </header>
-  
-  <div class="shell">
-    <nav class="sidebar" id="sidebar"></nav>
+
+  <div class="app-container">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand__title">온하인하현묘중민 미국 동부 가족여행</div>
+        <div class="brand__sub">2026.7.27.(월) - 8. 24.(월) · 29 DAYS</div>
+      </div>
+    </header>
+    
+    <!-- 상단 가로 스크롤 메뉴 -->
+    <div class="day-selector" id="daySelector"></div>
+    
+    <!-- 메인 화면 -->
     <main class="stage" id="stage">
       <div class="stage__inner" id="stageInner">로딩 중...</div>
     </main>
+
+    <!-- 하단 고정 탭 메뉴 -->
+    <nav class="bottom-nav">
+      <button class="tabbtn is-active" id="tab-schedule" onclick="switchTab('schedule')">
+        <span class="tabbtn-icon">📅</span>일정표
+      </button>
+      <button class="tabbtn" id="tab-alerts" onclick="switchTab('alerts')">
+        <span class="tabbtn-icon">⚠️</span>꼭 확인
+      </button>
+      <button class="tabbtn" id="tab-booking" onclick="switchTab('booking')">
+        <span class="tabbtn-icon">🎫</span>예약리스트
+      </button>
+    </nav>
   </div>
   
 <script>
 let globalData = null;
+let currentTab = 'schedule';
+let currentDayIdx = 0;
 
-// 깃허브에 같이 올려둔 schedule.json 파일을 실시간으로 가져오는 마법
 async function loadData() {
   try {
-    const res = await fetch('./schedule.json');
+    // 상대 경로 호환성 개선
+    const res = await fetch('schedule.json');
     globalData = await res.json();
-    renderSidebar();
-    selectDay(0);
+    renderDaySelector();
+    showSchedule();
   } catch (e) {
-    document.getElementById('stageInner').innerText = "데이터를 불러오지 못했습니다.";
+    document.getElementById('stageInner').innerText = "데이터(schedule.json)를 불러오지 못했습니다. 파일이 저장소에 있는지 확인해 주세요.";
   }
 }
 
-function setAccent(color) {
-  document.documentElement.style.setProperty("--day-color", color);
-}
-
-function renderSidebar() {
-  const nav = document.getElementById("sidebar");
-  let html = `<div class="sidebar__label">여행 일정</div>`;
+function renderDaySelector() {
+  const container = document.getElementById("daySelector");
+  let html = "";
   globalData.DAYS.forEach((d, i) => {
+    const formattedDate = d.date.replace(/ /g, '') + `(${d.dow})`;
     html += `
-      <button class="navbtn" id="nb-${i}" style="background-color: ${d.cityBg};" onclick="selectDay(${i})">
-        <span class="navbtn__day" style="color: ${d.color};">${d.date}.(${d.dow})</span>
-        <span class="navbtn__theme">${d.theme}</span>
+      <button class="navbtn" id="nb-${i}" style="background-color: ${d.cityBg};" onclick="changeDay(${i})">
+        <span class="navbtn__day" style="color: ${d.color};">${formattedDate}</span>
+        <span class="navbtn__theme">DAY ${d.n}</span>
       </button>`;
   });
-  html += `
-    <div class="nav-sep"></div>
-    <button class="infobtn" id="ib-alerts" onclick="selectInfo('alerts')">⚠️ 필수 확인</button>
-    <button class="infobtn" id="ib-booking" onclick="selectInfo('booking')">🎫 예약 체크</button>`;
-  nav.innerHTML = html;
+  container.innerHTML = html;
 }
 
-function selectDay(idx) {
-  document.querySelectorAll('.navbtn, .infobtn').forEach(b => b.classList.remove('is-active'));
-  document.getElementById(`nb-${idx}`).classList.add('is-active');
+function changeDay(idx) {
+  currentDayIdx = idx;
+  switchTab('schedule');
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tabbtn').forEach(b => b.classList.remove('is-active'));
+  document.getElementById(`tab-${tab}`).classList.add('is-active');
+
+  if (tab === 'schedule') {
+    document.getElementById('daySelector').style.display = 'flex';
+    showSchedule();
+  } else {
+    document.getElementById('daySelector').style.display = 'none';
+    if (tab === 'alerts') showAlerts();
+    if (tab === 'booking') showBooking();
+  }
+}
+
+function showSchedule() {
+  document.querySelectorAll('.navbtn').forEach(b => b.classList.remove('is-active'));
+  const activeBtn = document.getElementById(`nb-${currentDayIdx}`);
+  if(activeBtn) {
+    activeBtn.classList.add('is-active');
+    // 스크롤 자동 이동 기능 추가
+    activeBtn.parentNode.scrollTo({ left: activeBtn.offsetLeft - 20, behavior: 'smooth' });
+  }
   
-  const d = globalData.DAYS[idx];
-  setAccent(d.color);
+  const d = globalData.DAYS[currentDayIdx];
+  document.documentElement.style.setProperty("--day-color", d.color);
   
   let stopsHtml = d.stops.map(s => `
     <div class="stop">
@@ -146,7 +217,7 @@ function selectDay(idx) {
   document.getElementById('stageInner').innerHTML = `
     <div class="reveal">
       <div class="day__heading">
-        <div class="eyebrow">DAY ${d.n}</div>
+        <div class="eyebrow">DAY ${d.n} · ${d.date}.(${d.dow})</div>
         <div class="day__theme">${d.theme}</div>
       </div>
       ${d.note ? `<div class="day__note">${d.note}</div>` : ''}
@@ -154,17 +225,26 @@ function selectDay(idx) {
     </div>`;
 }
 
-function selectInfo(type) {
-  document.querySelectorAll('.navbtn, .infobtn').forEach(b => b.classList.remove('is-active'));
-  document.getElementById(`ib-${type}`).classList.add('is-active');
-  setAccent("#334155");
-  
-  let html = `<div class="info-view reveal">`;
-  if(type === 'alerts') {
-    html += `<h2>⚠️ 필수 확인 사항</h2><br/>` + globalData.ALERTS.map(a => `<h3>${a.title}</h3><p>${a.body}</p><br/>`).join('');
-  } else {
-    html += `<h2>🎫 예약 리스트</h2><br/>` + globalData.BOOKING.map(b => `<h3>${b.title}</h3><p>${b.detail}</p><br/>`).join('');
-  }
+function showAlerts() {
+  let html = `<div class="info-view reveal"><h2>⚠️ 필수 확인 사항</h2>`;
+  html += globalData.ALERTS.map(a => `
+    <div class="info-card">
+      <h3>${a.title}</h3>
+      <p>${a.body}</p>
+    </div>
+  `).join('');
+  html += `</div>`;
+  document.getElementById('stageInner').innerHTML = html;
+}
+
+function showBooking() {
+  let html = `<div class="info-view reveal"><h2>🎫 예약 체크리스트</h2>`;
+  html += globalData.BOOKING.map(b => `
+    <div class="info-card">
+      <h3>${b.title}</h3>
+      <p>${b.detail}</p>
+    </div>
+  `).join('');
   html += `</div>`;
   document.getElementById('stageInner').innerHTML = html;
 }
